@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fillViewport="true"
+    android:background="#F5F6FA">
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:padding="24dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/card_bg"
+            android:orientation="vertical"
+            android:padding="20dp"
+            android:elevation="6dp">
+
+            <TextView
+                android:id="@+id/title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="SafeText Analyzer"
+                android:textSize="22sp"
+                android:textStyle="bold"
+                android:textColor="#111"
+                android:layout_marginBottom="16dp" />
+
+            <EditText
+                android:id="@+id/inputText"
+                android:layout_width="match_parent"
+                android:layout_height="150dp"
+                android:hint="Enter text to analyze..."
+                android:padding="16dp"
+                android:gravity="top"
+                android:background="@drawable/rounded_input"
+                android:textColor="#111"
+                android:textColorHint="#999"
+                android:textSize="16sp" />
+
+            <Button
+                android:id="@+id/analyzeButton"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:text="Analyze"
+                android:layout_marginTop="20dp"
+                android:background="@drawable/primary_button"
+                android:textColor="#FFFFFF"
+                android:textAllCaps="false"
+                android:textSize="16sp" />
+
+            <Button
+                android:id="@+id/enableNotificationsButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Enable Notifications"
+                android:layout_gravity="center"
+                android:layout_marginTop="18dp"
+                android:background="@drawable/outline_button"
+                android:textColor="#3F51B5"
+                android:textAllCaps="false"
+                android:textSize="15sp" />
+
+            <TextView
+                android:id="@+id/outputText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textSize="18sp"
+                android:layout_marginTop="22dp"
+                android:textColor="#333" />
+
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/historyHeader"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Last Incoming Notification"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:textColor="#111"
+            android:layout_marginTop="30dp"
+            android:layout_marginBottom="12dp" />
+
+        <LinearLayout
+            android:id="@+id/lastNotiCard"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/card_bg"
+            android:orientation="vertical"
+            android:padding="20dp"
+            android:elevation="6dp"
+            android:visibility="gone">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginBottom="12dp">
+
+                <TextView
+                    android:id="@+id/lastNotiResultText"
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="wrap_content"
+                    android:text="Result"
+                    android:textStyle="bold"
+                    android:textSize="18sp"
+                    android:textColor="#333" />
+
+                <TextView
+                    android:id="@+id/lastNotiTimeText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Time"
+                    android:textSize="14sp"
+                    android:textColor="#666" />
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/lastNotiContentText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Message content..."
+                android:textSize="16sp"
+                android:textColor="#333"
+                android:lineSpacingExtra="4dp"
+                android:maxLines="10"
+                android:ellipsize="end" />
+
+        </LinearLayout>
+    </LinearLayout>
+
+</ScrollView>
