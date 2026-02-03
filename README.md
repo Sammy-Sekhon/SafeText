@@ -1,4 +1,4 @@
-#SafeText: On-Device Detection of Cyberbullying and Hate Speech in Mobile Messaging
+# SafeText: On-Device Detection of Cyberbullying and Hate Speech in Mobile Messaging
 
 ## Overview
 * This app was built by me as a final project for the ECE 516 Mobile Applications course at George Mason University.
