@@ -36,6 +36,9 @@ android {
     kotlinOptions {
         jvmTarget = "11"
     }
+    buildFeatures {
+        mlModelBinding = true
+    }
 }
 
 dependencies {
@@ -47,4 +50,6 @@ dependencies {
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
     implementation("com.google.android.material:material:1.9.0")
+    implementation("com.google.ai.edge.litert:litert:1.0.1")
+    implementation("org.tensorflow:tensorflow-lite-select-tf-ops:2.16.1")
 }

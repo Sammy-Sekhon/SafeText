@@ -25,6 +25,8 @@ object PreferenceManager {
     private const val KEY_LAST_PROB = "last_noti_prob"
     private const val KEY_LAST_TIME = "last_noti_time"
 
+    private const val KEY_USE_CNN_MODEL = "use_cnn_model"
+
     /**
      * Saves notification data persistently.
      */
@@ -61,5 +63,24 @@ object PreferenceManager {
     fun getFormattedTime(timestampMs: Long): String {
         val sdf = SimpleDateFormat("hh:mm a", Locale.getDefault())
         return sdf.format(Date(timestampMs))
+    }
+
+    /**
+     * Saves the model selection choice. true = CNN, false = BERT.
+     */
+    fun saveUseCnnModel(context: Context, useCnn: Boolean) {
+        val sharedPref = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)
+        with(sharedPref.edit()) {
+            putBoolean(KEY_USE_CNN_MODEL, useCnn)
+            apply()
+        }
+    }
+
+    /**
+     * Checks if CNN model is selected. Defaults to false (BERT) if never set.
+     */
+    fun isCnnModelSelected(context: Context): Boolean {
+        val sharedPref = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)
+        return sharedPref.getBoolean(KEY_USE_CNN_MODEL, false)
     }
 }

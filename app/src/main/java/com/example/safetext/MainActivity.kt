@@ -1,127 +1,195 @@
 package com.example.safetext
 
-import android.app.AlertDialog
-import android.content.ComponentName
 import android.content.Intent
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.provider.Settings
-import android.text.TextUtils
+import android.view.View
 import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
-import com.example.safetext.app.loadVocab
+import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.lifecycleScope
+import com.google.android.material.switchmaterial.SwitchMaterial
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class MainActivity : AppCompatActivity() {
 
-    private lateinit var tokenizer: BertTokenizer
-    private lateinit var model: SafeTextModel
-    private lateinit var enableNotificationListenerButton: Button
+    private lateinit var inputText: EditText
+    private lateinit var analyzeButton: Button
+    private lateinit var outputText: TextView
+    private lateinit var enableNotificationsButton: Button
+    private lateinit var modelSwitch: SwitchMaterial
+
+    // History card
+    private lateinit var lastNotiCard: View
+    private lateinit var lastNotiResultText: TextView
+    private lateinit var lastNotiTimeText: TextView
+    private lateinit var lastNotiContentText: TextView
+
+    // Engines
+    private lateinit var bertEngine: InferenceEngine
+    private lateinit var tfliteEngine: TFLiteTextClassifier
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        // 1. UI components
-        val inputText = findViewById<EditText>(R.id.inputText)
-        val analyzeButton = findViewById<Button>(R.id.analyzeButton)
-        val outputText = findViewById<TextView>(R.id.outputText)
-        enableNotificationListenerButton = findViewById(R.id.enableNotificationsButton) // Find the new button
+        // Bind Views
+        inputText = findViewById(R.id.inputText)
+        analyzeButton = findViewById(R.id.analyzeButton)
+        outputText = findViewById(R.id.outputText)
+        enableNotificationsButton = findViewById(R.id.enableNotificationsButton)
+        modelSwitch = findViewById(R.id.modelSwitch)
 
-        // 2. Load tokenizer + model
-        tokenizer = BertTokenizer(
-            vocab = loadVocab(this, "vocab.txt"),
-            maxLength = 128
-        )
-        model = SafeTextModel(this)
+        lastNotiCard = findViewById(R.id.lastNotiCard)
+        lastNotiResultText = findViewById(R.id.lastNotiResultText)
+        lastNotiTimeText = findViewById(R.id.lastNotiTimeText)
+        lastNotiContentText = findViewById(R.id.lastNotiContentText)
 
-        // 3. Analyze Button Listener (Existing)
+        // Instantiate engines
+        bertEngine = InferenceEngine(this)
+        tfliteEngine = TFLiteTextClassifier(this)
+
+        // Load saved preference for switch
+        val isCnnSelected = PreferenceManager.isCnnModelSelected(this)
+        modelSwitch.isChecked = isCnnSelected
+
+        modelSwitch.setOnCheckedChangeListener { _, isChecked ->
+            PreferenceManager.saveUseCnnModel(this, isChecked)
+            outputText.text = ""
+        }
+
+
+        // Analyze button logic
         analyzeButton.setOnClickListener {
             val userInput = inputText.text.toString().trim()
-            if (userInput.isNotEmpty()) {
-                val result = analyzeText(userInput)
-                outputText.text = result
-            } else {
-                outputText.text = "Please enter text."
+            if (userInput.isEmpty()) {
+                inputText.error = "Please enter text"
+                return@setOnClickListener
             }
-        }
 
-        // 4. Enable Service Button Listener (NEW)
-        // This button takes the user directly to the Notification Access settings screen
-        enableNotificationListenerButton.setOnClickListener {
-            startActivity(Intent(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS))
-        }
+            analyzeButton.isEnabled = false
+            outputText.text = "Loading model and analyzing..."
+            outputText.setTextColor(getColor(android.R.color.darker_gray))
 
-        // 5. Initial Check (Optional: you can keep the dialog if you want)
-        if (!isNotificationServiceEnabled()) {
-            buildNotificationServiceAlertDialog()
-        }
-    }
+            lifecycleScope.launch {
+                var probability = 0.0f
+                var modelUsedName = ""
 
-    /**
-     * onResume is called when the user returns to the app (e.g., coming back from Settings).
-     * We check permission status here to update the UI.
-     */
-    override fun onResume() {
-        super.onResume()
-        updateServiceButtonState()
-    }
+                try {
+                    if (modelSwitch.isChecked) {
+                        // ---- TFLITE CNN MODEL ----
+                        modelUsedName = "TFLite CNN"
 
-    private fun updateServiceButtonState() {
-        if (isNotificationServiceEnabled()) {
-            enableNotificationListenerButton.text = "Notification Access Granted ✅"
-            enableNotificationListenerButton.isEnabled = false
-        } else {
-            enableNotificationListenerButton.text = "Enable Notification Access ⚠️"
-            enableNotificationListenerButton.isEnabled = true
-        }
-    }
+                        // Ensure model initialized ONCE
+                        if (!tfliteEngine.isInitialized) {
+                            withContext(Dispatchers.IO) { tfliteEngine.initialize() }
+                        }
 
-    private fun analyzeText(text: String): String {
-        // (Your existing implementation)
-        val encoded = tokenizer.encode(text)
-        val probability = model.predict(encoded.inputIds, encoded.attentionMask)
-        val label = if (probability > 0.5f) "Safe" else "Unsafe"
-        if (label == "Unsafe")
-            return "Result: $label\nConfidence: ${"%.3f".format(1 - probability)}"
-        else
-            return "Result: $label\nConfidence: ${"%.3f".format(probability)}"
-    }
+                        probability = withContext(Dispatchers.IO) {
+                            tfliteEngine.predict(userInput)
+                        }
 
-    // ... keep your existing isNotificationServiceEnabled and buildNotificationServiceAlertDialog functions ...
-    private fun isNotificationServiceEnabled(): Boolean {
-        val pkgName = packageName
-        val flat = Settings.Secure.getString(contentResolver, "enabled_notification_listeners")
-        if (!TextUtils.isEmpty(flat)) {
-            val names = flat.split(":").toTypedArray()
-            for (name in names) {
-                val cn = ComponentName.unflattenFromString(name)
-                if (cn != null) {
-                    if (TextUtils.equals(pkgName, cn.packageName)) {
-                        return true
+                    } else {
+                        // ---- BERT ONNX MODEL ----
+                        modelUsedName = "BERT ONNX"
+
+                        withContext(Dispatchers.IO) { bertEngine.initialize() }
+
+
+                        probability = withContext(Dispatchers.IO) {
+                            bertEngine.classify(userInput)
+                        }
                     }
+
+                    displayManualResult(probability, modelUsedName)
+
+                } catch (e: Exception) {
+                    outputText.text = "Error: ${e.message}"
+                    outputText.setTextColor(getColor(android.R.color.holo_red_dark))
+                    e.printStackTrace()
+
+                } finally {
+                    analyzeButton.isEnabled = true
                 }
             }
         }
-        return false
-    }
 
-    /**
-     * Builds an alert dialog asking the user to grant permission.
-     */
-    private fun buildNotificationServiceAlertDialog() {
-        val alertDialogBuilder = AlertDialog.Builder(this)
-        alertDialogBuilder.setTitle("Notification Permission Needed")
-        alertDialogBuilder.setMessage("For the app to classify incoming notifications, please grant notification access in Settings.")
-        alertDialogBuilder.setPositiveButton("Go to Settings") { dialog, id ->
-            // Intent to open the specific settings screen
+
+        // Notification listener settings button
+        enableNotificationsButton.setOnClickListener {
             startActivity(Intent(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS))
         }
-        alertDialogBuilder.setNegativeButton("Cancel") { dialog, id ->
-            // If you want to close the app if they decline:
-            // finish()
+    }
+
+
+    private fun displayManualResult(probSafe: Float, modelName: String) {
+
+        var isUnsafe: Boolean
+        var confidence: Float
+
+        val probUnsafe = 1f - probSafe
+
+        if (modelName == "BERT ONNX") {
+            // BERT output = probSafe
+            isUnsafe = probUnsafe >= 0.5f
+            confidence = if (isUnsafe) probUnsafe else probSafe
+        } else {
+            // TFLite output = probUnsafe already
+            isUnsafe = probUnsafe <= 0.4f
+            confidence = if (isUnsafe) (1f - probUnsafe) else probUnsafe
         }
-        val alert = alertDialogBuilder.create()
-        alert.show()
+
+        val label = if (isUnsafe) "Unsafe" else "Safe"
+        val confidenceStr = "%.1f%%".format(confidence * 100)
+
+        outputText.text = "Result: $label\nConfidence: $confidenceStr\nModel: $modelName"
+
+        outputText.setTextColor(
+            if (isUnsafe)
+                getColor(android.R.color.holo_red_dark)
+            else
+                getColor(android.R.color.black)
+        )
+    }
+
+
+
+
+    override fun onResume() {
+        super.onResume()
+        updateLastNotificationUI()
+    }
+
+
+    private fun updateLastNotificationUI() {
+        val data = PreferenceManager.getLastNotification(this)
+        if (data == null) {
+            lastNotiCard.visibility = View.GONE
+            return
+        }
+
+        lastNotiCard.visibility = View.VISIBLE
+        val isUnsafe = data.probability <= 0.5f
+        val label = if (isUnsafe) "Unsafe" else "Safe"
+
+        lastNotiResultText.text = label
+        lastNotiContentText.text = data.text
+        lastNotiTimeText.text = PreferenceManager.getFormattedTime(data.timestampMs)
+
+        if (isUnsafe) {
+            lastNotiResultText.setTextColor(getColor(android.R.color.holo_red_dark))
+        } else {
+            lastNotiResultText.setTextColor(getColor(android.R.color.black))
+        }
+    }
+
+
+    override fun onDestroy() {
+        super.onDestroy()
+        tfliteEngine.close() // avoids interpreter leaks
     }
 }

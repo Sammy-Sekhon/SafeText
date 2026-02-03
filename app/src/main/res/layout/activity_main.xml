@@ -41,12 +41,20 @@
                 android:textColorHint="#999"
                 android:textSize="16sp" />
 
+            <com.google.android.material.switchmaterial.SwitchMaterial
+                android:id="@+id/modelSwitch"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:text="Use TFLite CNN Model (Off = BERT)"
+                android:textColor="#333"
+                android:textSize="14sp" />
             <Button
                 android:id="@+id/analyzeButton"
                 android:layout_width="match_parent"
                 android:layout_height="48dp"
                 android:text="Analyze"
-                android:layout_marginTop="20dp"
+                android:layout_marginTop="16dp"
                 android:background="@drawable/primary_button"
                 android:textColor="#FFFFFF"
                 android:textAllCaps="false"
@@ -134,5 +142,4 @@
 
         </LinearLayout>
     </LinearLayout>
-
 </ScrollView>
