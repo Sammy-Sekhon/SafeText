@@ -1,5 +1,7 @@
 # SafeText: On-Device Detection of Cyberbullying and Hate Speech in Mobile Messaging
 
+--- 
+
 ## Overview
 * This app was built by me as a final project for the ECE 516 Mobile Applications course at George Mason University.
 * The idea was to use machine learning technologies to detect incoming notifications on a mobile device as either safe or unsafe.
@@ -18,3 +20,15 @@
 * The transformer model used was a pre-trained DistilBERT model (Victor Sanh, 2020). It was trained by me on a Kaggle toxicity dataset.
 * The second model is a custom CNN/LSTM model consisting of 6 total layers: an embedding layer (100x64), a 1D convolutional layer (98x64 followed by a 1D maxpool of pool=2, then an LSTM layer with 64 units followed by a dropout layer with a rate of 0.5 to reduce overfitting, then lastly a single dense neuron with a sigmoid activation function. The result is a score p∈[0,1], if p >= 0.5, then the input is labeled as safe, else unsafe. The model architecture is shown below.
 ![alt text](image.png)
+
+## Installation & Usage
+1. **Clone:** `git clone https://github.com/Sammy-Sekhon/SafeText.git`
+2. **Install Android Studio:** via [Link Text](https://developer.android.com/studio) or an IDE of your choice.
+3. **Deploy and Run:** Simply build and deploy onto the device of your choice.
+
+## Disclaimer
+* Because the app was not intended for commercial use or to be monetized, there are no plans for updates **as of now**. There are also likely to be some bugs, especially with the CNN/LSTM model, as I had run into many issues with the TF Lite tokenizer.
+
+---
+
+Created by Sammy Sekhon - [Link Text](https://www.linkedin.com/in/sameetsekhon/)
