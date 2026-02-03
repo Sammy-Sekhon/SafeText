@@ -23,7 +23,7 @@
 
 ## Installation & Usage
 1. **Clone:** `git clone https://github.com/Sammy-Sekhon/SafeText.git`
-2. **Install Android Studio:** via [Link Text](https://developer.android.com/studio) or an IDE of your choice.
+2. **Install Android Studio:** via [Android Studio Website](https://developer.android.com/studio) or an IDE of your choice.
 3. **Deploy and Run:** Simply build and deploy onto the device of your choice.
 
 ## Disclaimer
@@ -31,4 +31,4 @@
 
 ---
 
-Created by Sammy Sekhon - [Link Text](https://www.linkedin.com/in/sameetsekhon/)
+Created by Sammy Sekhon - [LinkedIn](https://www.linkedin.com/in/sameetsekhon/)
