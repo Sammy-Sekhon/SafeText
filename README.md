@@ -7,7 +7,7 @@
 
 ## Tech Stack
 * **Languages:** Python for model training and testing, Kotlin for mobile development and deployment.
-* **Frameworks:** Two different models were trained in this project. The transformer-based model DistilBERT was trained via **PyTorch**, while the custom CNN/LSTM hybrid model was trained in * **TensorFlow**. The transformer model was converted into an **ONNX** model for mobile deployment via **ONNX Runtime Mobile**. The CNN/LSTM model was simply converted into a **TFLite Model**.
+* **Frameworks:** Two different models were trained in this project. The transformer-based model DistilBERT was trained via **PyTorch**, while the custom CNN/LSTM hybrid model was trained in **TensorFlow**. The transformer model was converted into an **ONNX** model for mobile deployment via **ONNX Runtime Mobile**. The CNN/LSTM model was simply converted into a **TFLite Model**.
 
 ## Key Features
 * The app will automatically detect incoming messages and classify them as either safe or unsafe. The last incoming notification, along with its respective classification, is always displayed on the app's landing page.
