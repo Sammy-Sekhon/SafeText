@@ -4,7 +4,7 @@
 
 ## Overview
 * This app was built by me as a final project for the ECE 516 Mobile Applications course at George Mason University.
-* The idea was to use machine learning technologies to detect incoming notifications on a mobile device as either safe or unsafe.
+* The idea was to use machine learning technologies to detect and classify incoming notifications on a mobile device as either safe or unsafe.
 * If an incoming message is classified as unsafe, the message is blocked, and the user is sent an alternate notification by SafeText, alerting them of a potentially harmful message.
 
 ## Tech Stack
