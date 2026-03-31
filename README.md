@@ -18,7 +18,7 @@
 ## ML Model Specifics
 * As stated earlier, I went with a dual-architecture approach for this project, mainly for learning purposes and to test just how much better a transformer model can perform at NLP tasks as opposed to non-attention-based models.
 * The transformer model used was a pre-trained DistilBERT model (Victor Sanh, 2020). It was trained by me on a Kaggle toxicity dataset.
-* The second model is a custom CNN/LSTM model consisting of 6 total layers: an embedding layer (100x64), a 1D convolutional layer (98x64) followed by a 1D maxpool of pool=2, then an LSTM layer with 64 units followed by a dropout layer with a rate of 0.5 to reduce overfitting, then lastly a single dense neuron with a sigmoid activation function. The result is a score p∈[0,1], if p >= 0.5, then the input is labeled as safe, else unsafe. The model architecture is shown below.
+* The second model is a custom CNN/LSTM model consisting of 6 total layers: an embedding layer (100x64), a 1D convolutional layer (98x64) followed by a 1D maxpool of pool=2. An LSTM layer is added with 64 units followed by a dropout layer with a rate of 0.5 to reduce overfitting; lastly a single dense neuron with a sigmoid activation function to output the final classification is added. The result is a score p∈[0,1]; if p >= 0.5, then the input is labeled as safe, else unsafe. The model architecture is shown below.
 ![alt text](image.png)
 
 ## Installation & Usage
